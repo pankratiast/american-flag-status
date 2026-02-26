@@ -151,20 +151,24 @@
       top: 0;
       left: 0;
       width: 72px;
-      height: calc(7 * 105px / 13);
+      height: calc(7 / 13 * 100%);
       background: #3C3B6E;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+      flex-direction: column;
       justify-content: space-evenly;
-      padding: 2px;
+      padding: 4px 0;
+      overflow: visible;
+    }
+
+    .star-row {
+      display: flex;
+      justify-content: space-evenly;
     }
 
     .canton-star {
       color: #fff;
-      font-size: 6px;
+      font-size: 6.5px;
       line-height: 1;
-      width: 12%;
       text-align: center;
     }
 
@@ -297,7 +301,7 @@
       h1 { font-size: 1.7rem; }
       .flag { width: 140px; height: 82px; }
       .flag-canton { width: 56px; }
-      .canton-star { font-size: 5px; }
+      .canton-star { font-size: 5px !important; }
       .flag-assembly { height: 280px; }
       .pole { height: 280px; }
       .flag-wrapper.half-staff { top: 95px; }
@@ -373,15 +377,21 @@
       }
     })();
 
-    // Generate canton stars (50)
+    // Generate canton stars (50) in authentic 6-5 alternating rows
     (function () {
       const canton = document.getElementById('canton');
-      for (let i = 0; i < 50; i++) {
-        const s = document.createElement('span');
-        s.className = 'canton-star';
-        s.textContent = '\u2605';
-        canton.appendChild(s);
-      }
+      const pattern = [6,5,6,5,6,5,6,5,6]; // 5×6 + 4×5 = 50
+      pattern.forEach(function (count) {
+        const row = document.createElement('div');
+        row.className = 'star-row';
+        for (let i = 0; i < count; i++) {
+          const s = document.createElement('span');
+          s.className = 'canton-star';
+          s.textContent = '\u2605';
+          row.appendChild(s);
+        }
+        canton.appendChild(row);
+      });
     })();
 
     // Populate state dropdown
