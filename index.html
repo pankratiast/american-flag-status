@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>U.S. Flag Status</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      color: #fff;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a1628;
+    }
+
+    /* Subtle animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        #0a1628 0%,
+        #1a2744 25%,
+        #0d1f3c 50%,
+        #1a2744 75%,
+        #0a1628 100%
+      );
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      z-index: -2;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Stars background */
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0;
+      animation: twinkle 4s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.6; }
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    /* Flag and pole assembly */
+    .flag-assembly {
+      position: relative;
+      display: inline-block;
+      height: 340px;
+      margin-bottom: 2rem;
+    }
+
+    .pole {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 340px;
+      background: linear-gradient(to right, #8a8a8a, #d4d4d4, #8a8a8a);
+      border-radius: 3px;
+      z-index: 1;
+    }
+
+    .pole-cap {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 18px;
+      background: radial-gradient(circle at 40% 35%, #f0d060, #c8a830, #a08020);
+      border-radius: 50%;
+      top: -9px;
+      z-index: 2;
+    }
+
+    .flag-wrapper {
+      position: absolute;
+      left: calc(50% + 3px);
+      transition: top 2s ease-in-out;
+      z-index: 0;
+    }
+
+    .flag-wrapper.full-staff { top: 2px; }
+    .flag-wrapper.half-staff { top: 120px; }
+
+    /* Waving flag */
+    .flag {
+      width: 180px;
+      height: 105px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0 2px 2px 0;
+      animation: wave 3s ease-in-out infinite;
+      transform-origin: left center;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.4);
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: perspective(300px) rotateY(0deg) skewY(0deg); }
+      25% { transform: perspective(300px) rotateY(-3deg) skewY(1deg); }
+      75% { transform: perspective(300px) rotateY(3deg) skewY(-0.5deg); }
+    }
+
+    /* American flag built in CSS */
+    .flag-stripes {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stripe {
+      flex: 1;
+    }
+
+    .stripe.red { background: #B22234; }
+    .stripe.white { background: #fff; }
+
+    .flag-canton {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 72px;
+      height: calc(7 * 105px / 13);
+      background: #3C3B6E;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-evenly;
+      padding: 2px;
+    }
+
+    .canton-star {
+      color: #fff;
+      font-size: 6px;
+      line-height: 1;
+      width: 12%;
+      text-align: center;
+    }
+
+    /* Status section */
+    .date-display {
+      font-size: 1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.75rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.5rem 2rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      transition: all 1s ease;
+    }
+
+    .status-badge.full {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      border: 1px solid #4caf50;
+      color: #c8e6c9;
+    }
+
+    .status-badge.half {
+      background: linear-gradient(135deg, #4a1c1c, #6d2020);
+      border: 1px solid #b22234;
+      color: #ffcdd2;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+      transition: all 1s ease;
+    }
+
+    h1 .highlight {
+      font-weight: 700;
+      display: block;
+    }
+
+    h1 .highlight.full-color { color: #81c784; }
+    h1 .highlight.half-color { color: #ef9a9a; }
+
+    .reason {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.75);
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+      font-style: italic;
+    }
+
+    .reason a {
+      color: #90caf9;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(144, 202, 249, 0.3);
+      transition: border-color 0.3s;
+    }
+
+    .reason a:hover {
+      border-bottom-color: #90caf9;
+    }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      margin: 1.5rem auto;
+      border: none;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    .source {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+    }
+
+    .source a {
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+    }
+
+    .source a:hover { color: rgba(255,255,255,0.6); }
+
+    /* Loading state */
+    .loading .status-badge,
+    .loading h1,
+    .loading .reason { opacity: 0.3; }
+
+    /* State selector */
+    .state-select {
+      margin-bottom: 1.5rem;
+    }
+
+    .state-select select {
+      appearance: none;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      padding: 0.4rem 2rem 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+    }
+
+    .state-select select:hover {
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .state-select select option {
+      background: #1a2744;
+      color: #fff;
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 1.7rem; }
+      .flag { width: 140px; height: 82px; }
+      .flag-canton { width: 56px; }
+      .canton-star { font-size: 5px; }
+      .flag-assembly { height: 280px; }
+      .pole { height: 280px; }
+      .flag-wrapper.half-staff { top: 95px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="container" id="app">
+
+    <div class="flag-assembly">
+      <div class="pole-cap"></div>
+      <div class="pole"></div>
+      <div class="flag-wrapper full-staff" id="flagWrapper">
+        <div class="flag">
+          <div class="flag-stripes">
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+            <div class="stripe white"></div>
+            <div class="stripe red"></div>
+          </div>
+          <div class="flag-canton" id="canton"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="date-display" id="dateDisplay"></div>
+
+    <div class="state-select">
+      <select id="stateSelect" aria-label="Select state">
+        <option value="">Federal</option>
+      </select>
+    </div>
+
+    <div class="status-badge full" id="statusBadge">Loading</div>
+
+    <h1 id="headline">
+      The flag is flying
+      <span class="highlight full-color" id="headlineStatus">...</span>
+    </h1>
+
+    <p class="reason" id="reason"></p>
+
+    <hr class="divider">
+
+    <p class="source">Data from <a href="https://halfstaff.org" target="_blank" rel="noopener">halfstaff.org</a></p>
+  </div>
+
+  <script>
+    // Generate twinkling stars
+    (function () {
+      const container = document.getElementById('stars');
+      for (let i = 0; i < 80; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = (Math.random() * 4) + 's';
+        star.style.animationDuration = (3 + Math.random() * 3) + 's';
+        star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+        container.appendChild(star);
+      }
+    })();
+
+    // Generate canton stars (50)
+    (function () {
+      const canton = document.getElementById('canton');
+      for (let i = 0; i < 50; i++) {
+        const s = document.createElement('span');
+        s.className = 'canton-star';
+        s.textContent = '\u2605';
+        canton.appendChild(s);
+      }
+    })();
+
+    // Populate state dropdown
+    const states = [
+      ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],
+      ['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],
+      ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],
+      ['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],
+      ['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],
+      ['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],
+      ['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+      ['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],
+      ['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],
+      ['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],
+      ['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],
+      ['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],
+      ['WI','Wisconsin'],['WY','Wyoming']
+    ];
+
+    const select = document.getElementById('stateSelect');
+    states.forEach(function (s) {
+      const opt = document.createElement('option');
+      opt.value = s[0];
+      opt.textContent = s[1];
+      select.appendChild(opt);
+    });
+
+    // Date display
+    function updateDate() {
+      var now = new Date();
+      var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+    }
+    updateDate();
+
+    // Fetch flag status
+    function fetchStatus(stateCode) {
+      var url = 'https://halfstaff.org/wp-json/halfstaff/v1/widget';
+      if (stateCode) url += '?state=' + encodeURIComponent(stateCode);
+
+      fetch(url)
+        .then(function (r) { return r.json(); })
+        .then(function (data) { render(data); })
+        .catch(function () {
+          render({ type: 'error' });
+        });
+    }
+
+    function render(data) {
+      var wrapper = document.getElementById('flagWrapper');
+      var badge = document.getElementById('statusBadge');
+      var headline = document.getElementById('headlineStatus');
+      var reason = document.getElementById('reason');
+
+      if (data.type === 'error') {
+        badge.className = 'status-badge half';
+        badge.textContent = 'Unavailable';
+        headline.textContent = 'Status unavailable';
+        headline.className = 'highlight half-color';
+        reason.innerHTML = 'Unable to retrieve flag status. Please try again later.';
+        return;
+      }
+
+      var isHalf = data.type && data.type !== 'none';
+
+      if (isHalf) {
+        wrapper.className = 'flag-wrapper half-staff';
+        badge.className = 'status-badge half';
+        badge.textContent = 'Half-Staff';
+        headline.textContent = 'at half-staff';
+        headline.className = 'highlight half-color';
+
+        var reasonText = data.title || 'A half-staff proclamation is in effect.';
+        if (data.link) {
+          reason.innerHTML = reasonText + '<br><a href="' + data.link + '" target="_blank" rel="noopener">Read more</a>';
+        } else {
+          reason.innerHTML = reasonText;
+        }
+      } else {
+        wrapper.className = 'flag-wrapper full-staff';
+        badge.className = 'status-badge full';
+        badge.textContent = 'Full Staff';
+        headline.textContent = 'proudly at full staff';
+        headline.className = 'highlight full-color';
+        reason.innerHTML = 'No half-staff proclamation is currently in effect.<br>Fly your flag with pride.';
+      }
+    }
+
+    // State change handler
+    select.addEventListener('change', function () {
+      fetchStatus(this.value);
+    });
+
+    // Initial load
+    fetchStatus('');
+  </script>
+
+</body>
+</html>
